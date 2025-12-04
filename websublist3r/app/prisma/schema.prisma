@@ -1,0 +1,43 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model ScanResult {
+  id           String   @id @default(cuid())
+  scanId       String   @unique @map("scan_id")
+  domain       String
+  subdomains   Json     // Array of SubdomainInfo as JSON
+  status       String   @default("pending") // pending, running, completed, failed
+  createdAt    DateTime @default(now()) @map("created_at")
+  completedAt  DateTime? @map("completed_at")
+  scanOptions  Json     @map("scan_options")
+  subdomainCount Int    @default(0) @map("subdomain_count")
+  
+  @@map("scan_results")
+}
+
+model DomainHistory {
+  id        String   @id @default(cuid())
+  domain    String   @index
+  scanId    String   @map("scan_id")
+  timestamp DateTime @default(now())
+  
+  @@map("domain_history")
+}
+
+model User {
+  id         String   @id @default(cuid())
+  email      String   @unique
+  name       String?
+  apiKey     String   @unique @map("api_key")
+  createdAt  DateTime @default(now()) @map("created_at")
+  scans      ScanResult[]
+  
+  @@map("users")
+}
