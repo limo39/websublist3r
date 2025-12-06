@@ -4,13 +4,13 @@ import { prisma } from '@/lib/database';
 import { redis } from '@/lib/redis';
 
 interface Params {
-  params: {
+  params: Promise<{
     scanId: string;
-  };
+  }>;
 }
 
 export async function GET(request: NextRequest, { params }: Params) {
-  const { scanId } = params;
+  const { scanId } = await params;
 
   try {
     // Try cache first
@@ -63,7 +63,7 @@ export async function GET(request: NextRequest, { params }: Params) {
 }
 
 export async function DELETE(request: NextRequest, { params }: Params) {
-  const { scanId } = params;
+  const { scanId } = await params;
 
   try {
     await prisma.scanResult.delete({
